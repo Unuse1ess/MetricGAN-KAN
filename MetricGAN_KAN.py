@@ -9,8 +9,8 @@ import torch
 from torch import nn
 from torch.nn.utils import spectral_norm
 
-from .efficient_kan import KANLinear
-from .kan_convolutional.KANConv import KAN_Convolutional_Layer
+from efficient_kan import KANLinear
+from kan_convolutional.KANConv import KAN_Convolutional_Layer
 
 import speechbrain as sb
 
