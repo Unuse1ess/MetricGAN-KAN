@@ -13,8 +13,8 @@ __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 
 data_folder: !PLACEHOLDER # e.g, /data/member1/user_jasonfu/noisy-vctk-16k
 
-MetricGAN_folder: !ref <output_folder>/enhanced_wavs
-output_folder: !ref ./results/MetricGAN/<seed>
+MetricGAN_KAN_folder: !ref <output_folder>/enhanced_wavs
+output_folder: !ref ./results/MetricGAN_KAN/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 enhanced_folder: !ref <output_folder>/enhanced_wavs
@@ -41,7 +41,8 @@ skip_prep: False
 # Right now we only support 'pesq' and 'stoi'.
 # (Of course, it can be any arbitrary metric.)
 target_metric: pesq
-n_jobs: 1 # Jobs for metric eval (increase to speed up)
+#n_jobs: 1 # Jobs for metric eval (increase to speed up)
+n_jobs: 4
 # Training Parameters
 number_of_epochs: 750
 number_of_samples: 100
@@ -59,7 +60,7 @@ valid_dataloader_options:
     batch_size: !ref <valid_N_batch>
 
 # Change this import to use a different model
-models: !include:../models/MetricGAN.yaml
+models: !include:../models/MetricGAN_KAN.yaml
     N_fft: !ref <N_fft>
 
 epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter

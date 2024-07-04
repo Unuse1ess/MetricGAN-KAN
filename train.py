@@ -8,6 +8,8 @@ To run this recipe, do the following:
 Authors
  * Szu-Wei Fu 2020
  * Peter Plantinga 2021
+
+Adapted by: Yemin Mai
 """
 
 import os
@@ -278,7 +280,7 @@ class MetricGanBrain(sb.Brain):
         for i, (name, pred_wav, clean_path, length) in enumerate(
             zip(batch_id, wavs, clean_paths, lens)
         ):
-            path = os.path.join(self.hparams.MetricGAN_folder, name + ".wav")
+            path = os.path.join(self.hparams.MetricGAN_KAN_folder, name + ".wav")
             data = torch.unsqueeze(pred_wav[: int(length)].cpu(), 0)
             torchaudio.save(path, data, self.hparams.Sample_rate)
 
@@ -618,8 +620,8 @@ if __name__ == "__main__":
     se_brain.sub_stage = SubStage.GENERATOR
 
     if not os.path.isfile(hparams["historical_file"]):
-        shutil.rmtree(hparams["MetricGAN_folder"])
-    run_on_main(create_folder, kwargs={"folder": hparams["MetricGAN_folder"]})
+        shutil.rmtree(hparams["MetricGAN_KAN_folder"])
+    run_on_main(create_folder, kwargs={"folder": hparams["MetricGAN_KAN_folder"]})
 
     se_brain.load_history()
     # Load latest checkpoint to resume training
