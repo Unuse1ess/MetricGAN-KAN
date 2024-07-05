@@ -575,8 +575,8 @@ if __name__ == "__main__":
         hparams = load_hyperpyyaml(fin, overrides)
 
     # Create the model
-    hparams["models"]["generator"]= EnhancementGenerator()
-    hparams["models"]["discriminator"] = MetricDiscriminator(hparams["models"]["kernel_size"], hparams["models"]["base_channels"])
+    # hparams["models"]["generator"]= EnhancementGenerator()
+    # hparams["models"]["discriminator"] = MetricDiscriminator(hparams["models"]["kernel_size"], hparams["models"]["base_channels"])
 
     # Initialize ddp (useful only for multi-GPU DDP training)
     sb.utils.distributed.ddp_init_group(run_opts)

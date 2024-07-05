@@ -60,7 +60,7 @@ valid_dataloader_options:
     batch_size: !ref <valid_N_batch>
 
 # Change this import to use a different model
-models: !include:model.yaml
+models: !include:./models/model.yaml
     N_fft: !ref <N_fft>
 
 epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter

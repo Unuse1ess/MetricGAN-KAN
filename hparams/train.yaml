@@ -61,12 +61,10 @@ valid_dataloader_options:
 
 # Change this import to use a different model
 # Manually create the GAN model at train.py
-models:
-    generator: !PLACEHOLDER
-    discriminator: !PLACEHOLDER
+models: !include:../models/MetricGAN.yaml
+    # generator: !PLACEHOLDER
+    # discriminator: !PLACEHOLDER
     N_fft: !ref <N_fft>
-    kernel_size: (5,5)
-    base_channels: 15
 
 epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter
     limit: !ref <number_of_epochs>
