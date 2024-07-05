@@ -61,7 +61,7 @@ valid_dataloader_options:
 
 # Change this import to use a different model
 # Manually create the GAN model at train.py
-models: !include:../models/MetricGAN.yaml
+models: !include:../models/model.yaml
     # generator: !PLACEHOLDER
     # discriminator: !PLACEHOLDER
     N_fft: !ref <N_fft>
