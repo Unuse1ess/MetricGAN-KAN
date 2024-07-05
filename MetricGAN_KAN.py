@@ -186,26 +186,21 @@ class MetricDiscriminator(nn.Module):
 
     def forward(self, x):
         """Processes the input tensor x and returns an output tensor."""
-        print(x.shape)
         out = self.BN(x)
-        print(out.shape)
 
         out = self.conv1(out)
         # out = self.activation(out)
 
-        #out = self.conv2(out)
+        out = self.conv2(out)
         # out = self.activation(out)
 
-        #out = self.conv3(out)
+        out = self.conv3(out)
         # out = self.activation(out)
 
-        #out = self.conv4(out)
+        out = self.conv4(out)
         # out = self.activation(out)
-
-        print(out.shape)
 
         out = torch.mean(out, (2, 3))
-        print(out.shape)
 
         out = self.Linear1(out)
         # out = self.activation(out)
