@@ -30,7 +30,7 @@ from speechbrain.processing.features import spectral_magnitude
 from speechbrain.utils.distributed import run_on_main
 from speechbrain.utils.metric_stats import MetricStats
 
-from MetricGAN_KAN import MetricDiscriminator
+from MetricGAN_KAN import MetricDiscriminator, EnhancementGenerator
 
 
 def pesq_eval(pred_wav, target_wav):
@@ -575,8 +575,8 @@ if __name__ == "__main__":
         hparams = load_hyperpyyaml(fin, overrides)
 
     # Create the model
-    hparams.models.generator = speechbrain.lobes.models.MetricGAN.EnhancementGenerator()
-    hparams.models.discriminator = MetricDiscriminator(hparams.models.kernel_size, hparams.models.base_channels)
+    hparams["models"]["generator"]= EnhancementGenerator()
+    hparams["models"]["discriminator"] = MetricDiscriminator(hparams["models"]["kernel_size"], hparams["models"]["base_channels"])
 
     # Initialize ddp (useful only for multi-GPU DDP training)
     sb.utils.distributed.ddp_init_group(run_opts)

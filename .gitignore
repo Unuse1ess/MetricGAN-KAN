@@ -2,3 +2,5 @@ Convolutional-KANs/
 efficient-kan/
 tok.txt
 train.sh
+__pycache__/
+results/

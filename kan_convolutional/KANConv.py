@@ -1,7 +1,7 @@
 import torch
 import math
-from KANLinear import KANLinear
-import convolution
+from .KANLinear import KANLinear
+import kan_convolutional.convolution as convolution
 
 
 #Script que contiene la implementación del kernel con funciones de activación.

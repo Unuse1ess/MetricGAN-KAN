@@ -14,6 +14,8 @@ from kan_convolutional.KANConv import KAN_Convolutional_Layer
 
 import speechbrain as sb
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def xavier_init_layer(
     in_size, out_size=None, spec_norm=True, layer_type=nn.Linear, **kwargs
@@ -155,31 +157,31 @@ class MetricDiscriminator(nn.Module):
 
         # Original implementation
 
-        # self.conv1 = xavier_init_layer(
-        #     2, base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.conv2 = xavier_init_layer(
-        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.conv3 = xavier_init_layer(
-        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.conv4 = xavier_init_layer(
-        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.Linear1 = xavier_init_layer(base_channels, out_size=50)
-        # self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
-        # self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
+        self.conv1 = xavier_init_layer(
+            2, base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.conv2 = xavier_init_layer(
+            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.conv3 = xavier_init_layer(
+            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.conv4 = xavier_init_layer(
+            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.Linear1 = xavier_init_layer(base_channels, out_size=50)
+        self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
+        self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
 
         # Modifications
 
-        self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size)
-        self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size)
+        #self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
+        #self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv3 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size)
         # self.conv4 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size)
 
-        self.Linear1 = KANLinear(base_channels, out_features=16)
-        self.Linear2 = KANLinear(in_features=16, out_features=1)
+        #self.Linear1 = KANLinear(base_channels, out_features=16)
+        #self.Linear2 = KANLinear(in_features=16, out_features=1)
         # self.Linear3 = KANLinear(base_channels, out_features=1)
 
     def forward(self, x):
@@ -192,11 +194,11 @@ class MetricDiscriminator(nn.Module):
         out = self.conv2(out)
         out = self.activation(out)
 
-        # out = self.conv3(out)
-        # out = self.activation(out)
+        out = self.conv3(out)
+        out = self.activation(out)
 
-        # out = self.conv4(out)
-        # out = self.activation(out)
+        out = self.conv4(out)
+        out = self.activation(out)
 
         out = torch.mean(out, (2, 3))
 
@@ -206,6 +208,6 @@ class MetricDiscriminator(nn.Module):
         out = self.Linear2(out)
         out = self.activation(out)
 
-        # out = self.Linear3(out)
+        out = self.Linear3(out)
 
         return out
