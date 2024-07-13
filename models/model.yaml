@@ -6,7 +6,8 @@
 
 # Neural parameters
 kernel_size: (5,5)
-base_channels: 15
+#base_channels: 15
+base_channels: 7
 
 N_fft: !PLACEHOLDER
 
