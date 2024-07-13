@@ -191,13 +191,13 @@ class MetricDiscriminator(nn.Module):
         out = self.conv1(out)
         # out = self.activation(out)
 
-        out = self.conv2(out)
+        #out = self.conv2(out)
         # out = self.activation(out)
 
-        out = self.conv3(out)
+        #out = self.conv3(out)
         # out = self.activation(out)
 
-        out = self.conv4(out)
+        #out = self.conv4(out)
         # out = self.activation(out)
 
         out = torch.mean(out, (2, 3))

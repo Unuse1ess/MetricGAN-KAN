@@ -11,10 +11,10 @@
 seed: 4234
 __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 
-data_folder: !PLACEHOLDER # e.g, /data/member1/user_jasonfu/noisy-vctk-16k
+data_folder: /mnt/parscratch/users/acq22ym/private/voice_bank/noisy-vctk-16k # e.g, /data/member1/user_jasonfu/noisy-vctk-16k
 
 MetricGAN_KAN_folder: !ref <output_folder>/enhanced_wavs
-output_folder: !ref ./results/MetricGAN_KAN/<seed>
+output_folder: !ref /mnt/parscratch/users/acq22ym/private/results/MetricGAN_KAN/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 enhanced_folder: !ref <output_folder>/enhanced_wavs
@@ -44,7 +44,8 @@ target_metric: pesq
 #n_jobs: 1 # Jobs for metric eval (increase to speed up)
 n_jobs: 4
 # Training Parameters
-number_of_epochs: 750
+#number_of_epochs: 750
+number_of_epochs: 500
 number_of_samples: 100
 min_mask: 0.05
 train_N_batch: 1
