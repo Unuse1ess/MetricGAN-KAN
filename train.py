@@ -30,7 +30,7 @@ from speechbrain.processing.features import spectral_magnitude
 from speechbrain.utils.distributed import run_on_main
 from speechbrain.utils.metric_stats import MetricStats
 
-from MetricGAN_KAN import MetricDiscriminator, EnhancementGenerator
+# from MetricGAN_KAN import MetricDiscriminator, EnhancementGenerator
 
 
 def pesq_eval(pred_wav, target_wav):
@@ -49,7 +49,7 @@ class SubStage(Enum):
     HISTORICAL = auto()
 
 
-class MetricGanBrain(sb.Brain):
+class MGKBrain(sb.Brain):
     def load_history(self):
         if os.path.isfile(self.hparams.historical_file):
             with open(self.hparams.historical_file, "rb") as fp:  # Unpickling
@@ -613,7 +613,7 @@ if __name__ == "__main__":
     # Create the folder to save enhanced files (+ support for DDP)
     run_on_main(create_folder, kwargs={"folder": hparams["enhanced_folder"]})
 
-    se_brain = MetricGanBrain(
+    se_brain = MGKBrain(
         modules=hparams["modules"],
         hparams=hparams,
         run_opts=run_opts,
