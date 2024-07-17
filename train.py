@@ -32,6 +32,8 @@ from speechbrain.utils.metric_stats import MetricStats
 
 # from MetricGAN_KAN import MetricDiscriminator, EnhancementGenerator
 
+from pysepm import composite
+
 
 def pesq_eval(pred_wav, target_wav):
     """Normalized PESQ (to 0-1)"""
@@ -39,6 +41,12 @@ def pesq_eval(pred_wav, target_wav):
         pesq(fs=16000, ref=target_wav.numpy(), deg=pred_wav.numpy(), mode="wb")
         + 0.5
     ) / 5
+
+def comp_eval(pred_wav, target_wav):
+    """Compute (CSIG, CBAK, COVL)"""
+    return torch.tensor(
+        composite(target_wav.numpy(), pred_wav.numpy(), 16000), requires_grad=False
+    )
 
 
 class SubStage(Enum):
@@ -150,6 +158,9 @@ class MGKBrain(sb.Brain):
                 batch.id, predict_wav, clean_wav, lens, reduction="batch"
             )
             self.pesq_metric.append(
+                batch.id, predict=predict_wav, target=clean_wav, lengths=lens
+            )
+            self.comp_metric.append(
                 batch.id, predict=predict_wav, target=clean_wav, lengths=lens
             )
 
@@ -383,6 +394,9 @@ class MGKBrain(sb.Brain):
                 metric=pesq_eval, n_jobs=hparams["n_jobs"], batch_eval=False
             )
             self.stoi_metric = MetricStats(metric=stoi_loss)
+            self.comp_metric = MetricStats(
+                metric=comp_eval, n_jobs=hparams["n_jobs"], batch_eval=False
+            )
 
     def train_discriminator(self):
         """A total of 3 data passes to update discriminator."""
@@ -427,18 +441,26 @@ class MGKBrain(sb.Brain):
             print("Avg G loss: %.3f" % torch.mean(g_loss))
             print("Avg D loss: %.3f" % torch.mean(d_loss))
         else:
+            comp = self.comp_metric.summarize("average")
             stats = {
                 "SI-SNR": -stage_loss,
                 "pesq": 5 * self.pesq_metric.summarize("average") - 0.5,
                 "stoi": -self.stoi_metric.summarize("average"),
+                "csig": comp[0],
+                "cbak": comp[1],
+                "covl": comp[2],
             }
 
         if stage == sb.Stage.VALID:
             if self.hparams.use_tensorboard:
+                comp = self.comp_metric.summarize("average")
                 valid_stats = {
                     "SI-SNR": -stage_loss,
                     "pesq": 5 * self.pesq_metric.summarize("average") - 0.5,
                     "stoi": -self.stoi_metric.summarize("average"),
+                    "csig": comp[0],
+                    "cbak": comp[1],
+                    "covl": comp[2],
                 }
                 self.hparams.tensorboard_train_logger.log_stats(valid_stats)
             self.hparams.train_logger.log_stats(
