@@ -44,9 +44,7 @@ def pesq_eval(pred_wav, target_wav):
 
 def comp_eval(pred_wav, target_wav):
     """Compute (CSIG, CBAK, COVL)"""
-    return torch.tensor(
-        composite(target_wav.numpy(), pred_wav.numpy(), 16000), requires_grad=False
-    )
+    return composite(target_wav.numpy(), pred_wav.numpy(), 16000)
 
 
 class SubStage(Enum):
@@ -441,7 +439,8 @@ class MGKBrain(sb.Brain):
             print("Avg G loss: %.3f" % torch.mean(g_loss))
             print("Avg D loss: %.3f" % torch.mean(d_loss))
         else:
-            comp = self.comp_metric.summarize("average")
+            comp = torch.tensor(self.comp_metric.scores)
+            comp = torch.mean(comp, 0)
             stats = {
                 "SI-SNR": -stage_loss,
                 "pesq": 5 * self.pesq_metric.summarize("average") - 0.5,
@@ -453,7 +452,8 @@ class MGKBrain(sb.Brain):
 
         if stage == sb.Stage.VALID:
             if self.hparams.use_tensorboard:
-                comp = self.comp_metric.summarize("average")
+                comp = torch.tensor(self.comp_metric.scores)
+                comp = torch.mean(comp, 0)
                 valid_stats = {
                     "SI-SNR": -stage_loss,
                     "pesq": 5 * self.pesq_metric.summarize("average") - 0.5,
