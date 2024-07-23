@@ -653,13 +653,16 @@ if __name__ == "__main__":
 
     se_brain.load_history()
     # Load latest checkpoint to resume training
-    se_brain.fit(
-        epoch_counter=se_brain.hparams.epoch_counter,
-        train_set=datasets["train"],
-        valid_set=datasets["valid"],
-        train_loader_kwargs=hparams["dataloader_options"],
-        valid_loader_kwargs=hparams["valid_dataloader_options"],
-    )
+    try:
+        se_brain.fit(
+            epoch_counter=se_brain.hparams.epoch_counter,
+            train_set=datasets["train"],
+            valid_set=datasets["valid"],
+            train_loader_kwargs=hparams["dataloader_options"],
+            valid_loader_kwargs=hparams["valid_dataloader_options"],
+        )
+    except torch.cuda.OutOfMemoryError:
+        print(torch.cuda.memory_summary())
 
     # Load best checkpoint for evaluation
     test_stats = se_brain.evaluate(
