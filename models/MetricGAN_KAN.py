@@ -106,8 +106,11 @@ class EnhancementGenerator(nn.Module):
             elif "weight_hh" in name:
                 nn.init.orthogonal_(param)
 
-        self.linear1 = xavier_init_layer(400, 300, spec_norm=False)
-        self.linear2 = xavier_init_layer(300, 257, spec_norm=False)
+        # self.linear1 = xavier_init_layer(400, 300, spec_norm=False)
+        # self.linear2 = xavier_init_layer(300, 257, spec_norm=False)
+
+        self.linear1 = KANLinear(400, 80)
+        self.linear2 = xavier_init_layer(80, 257, spec_norm=False)
 
         self.Learnable_sigmoid = Learnable_sigmoid()
         self.sigmoid = nn.Sigmoid()
@@ -147,74 +150,69 @@ class MetricDiscriminator(nn.Module):
         self,
         kernel_size=(5, 5),
         base_channels=15,
-        # activation=nn.LeakyReLU,
+        activation=nn.LeakyReLU,
     ):
         super().__init__()
 
-        # self.activation = activation(negative_slope=0.3)
+        self.activation = activation(negative_slope=0.3)
 
         self.BN = nn.BatchNorm2d(num_features=2, momentum=0.01)
 
         # Original implementation
 
-        # self.conv1 = xavier_init_layer(
-        #     2, base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.conv2 = xavier_init_layer(
-        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.conv3 = xavier_init_layer(
-        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.conv4 = xavier_init_layer(
-        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        # )
-        # self.Linear1 = xavier_init_layer(base_channels, out_size=50)
-        # self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
-        # self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
+        self.conv1 = xavier_init_layer(
+            2, base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.conv2 = xavier_init_layer(
+            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.conv3 = xavier_init_layer(
+            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.conv4 = xavier_init_layer(
+            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        )
+        self.Linear1 = xavier_init_layer(base_channels, out_size=50)
+        self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
+        self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
 
         # Modifications
 
         # self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
-        self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(9, 9), device=device)
-        self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(3, 3), device=device)
+        # self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(9, 9), device=device)
+        # self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(3, 3), device=device)
         # self.conv3 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv4 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
 
-        self.Linear1 = KANLinear(in_features=2*base_channels*base_channels, out_features=1)
+        # self.Linear1 = KANLinear(in_features=2*base_channels*base_channels, out_features=1)
         # self.Linear2 = KANLinear(in_features=50, out_features=1)
         # self.Linear3 = KANLinear(in_features=10, out_features=1)
 
     def forward(self, x):
         """Processes the input tensor x and returns an output tensor."""
-        # print(x.shape)
         out = self.BN(x)
-        # print(out.shape)
 
         out = self.conv1(out)
-        # print(out.shape)
-        # out = self.activation(out)
+        out = self.activation(out)
 
         out = self.conv2(out)
-        # out = self.activation(out)
+        out = self.activation(out)
 
-        # out = self.conv3(out)
-        # out = self.activation(out)
+        out = self.conv3(out)
+        out = self.activation(out)
 
-        # out = self.conv4(out)
-        # out = self.activation(out)
+        out = self.conv4(out)
+        out = self.activation(out)
 
-        # print(out.shape)
         out = torch.mean(out, (2, 3))
-        # print(out.shape)
 
         out = self.Linear1(out)
-        # out = self.activation(out)
+        out = self.activation(out)
 
-        # out = self.Linear2(out)
-        # out = self.activation(out)
+        out = self.Linear2(out)
+        out = self.activation(out)
 
-        # out = self.Linear3(out)
+        out = self.Linear3(out)
 
         return out
