@@ -186,7 +186,7 @@ class MetricDiscriminator(nn.Module):
 
     def forward(self, x):
         """Processes the input tensor x and returns an output tensor."""
-        print(out.shape)
+        print(x.shape)
         out = self.BN(x)
         print(out.shape)
 
