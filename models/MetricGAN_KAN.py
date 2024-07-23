@@ -210,7 +210,7 @@ class MetricDiscriminator(nn.Module):
         out = self.Linear1(out)
         # out = self.activation(out)
 
-        out = self.Linear2(out)
+        # out = self.Linear2(out)
         # out = self.activation(out)
 
         # out = self.Linear3(out)
