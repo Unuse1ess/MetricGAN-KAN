@@ -46,7 +46,7 @@ n_jobs: 4
 # Training Parameters
 #number_of_epochs: 750
 number_of_epochs: 200
-number_of_samples: 100
+number_of_samples: 50
 min_mask: 0.05
 train_N_batch: 1
 valid_N_batch: 20
