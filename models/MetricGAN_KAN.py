@@ -200,6 +200,7 @@ class MetricDiscriminator(nn.Module):
         # out = self.conv4(out)
         # out = self.activation(out)
 
+        print(out.shape)
         out = torch.mean(out, (2, 3))
         print(out.shape)
 
