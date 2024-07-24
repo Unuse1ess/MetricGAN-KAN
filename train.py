@@ -670,3 +670,9 @@ if __name__ == "__main__":
         max_key=hparams["target_metric"],
         test_loader_kwargs=hparams["dataloader_options"],
     )
+
+    # Show parameters summary
+    param_count = sum(p.numel() for p in se_brain.modules.generator.parameters() if p.requires_grad)
+    print(f"Generator parameter count: {param_count}")
+    param_count = sum(p.numel() for p in se_brain.modules.discriminator.parameters() if p.requires_grad)
+    print(f"Discriminator parameter count: {param_count}")
