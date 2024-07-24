@@ -14,7 +14,7 @@ __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 data_folder: /mnt/parscratch/users/acq22ym/private/voice_bank/noisy-vctk-16k # e.g, /data/member1/user_jasonfu/noisy-vctk-16k
 
 MetricGAN_KAN_folder: !ref <output_folder>/enhanced_wavs
-output_folder: !ref /mnt/parscratch/users/acq22ym/private/MetricGAN_KAN/<seed>
+output_folder: !ref /mnt/parscratch/users/acq22ym/private/MetricGAN_KAN-hp/<seed> # hp for history portion
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 enhanced_folder: !ref <output_folder>/enhanced_wavs
