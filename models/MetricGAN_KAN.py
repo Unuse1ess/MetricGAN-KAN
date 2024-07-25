@@ -120,7 +120,7 @@ class EnhancementGenerator(nn.Module):
         out, _ = self.blstm(x, lengths=lengths)
 
         out = self.linear1(out)
-        out = self.activation(out)
+        # out = self.activation(out)
 
         out = self.linear2(out)
         out = self.Learnable_sigmoid(out)
