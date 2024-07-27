@@ -80,49 +80,62 @@ class EnhancementGenerator(nn.Module):
     def __init__(
         self,
         input_size=257,
-        hidden_size=200,
-        num_layers=2,
-        dropout=0,
+        hidden_size=40,
+        # num_layers=2,
+        # dropout=0,
     ):
         super().__init__()
         self.activation = nn.LeakyReLU(negative_slope=0.3)
 
-        self.blstm = sb.nnet.RNN.LSTM(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            num_layers=num_layers,
-            dropout=dropout,
-            bidirectional=True,
-        )
-        """
-        Use orthogonal init for recurrent layers, xavier uniform for input layers
-        Bias is 0
-        """
-        for name, param in self.blstm.named_parameters():
-            if "bias" in name:
-                nn.init.zeros_(param)
-            elif "weight_ih" in name:
-                nn.init.xavier_uniform_(param)
-            elif "weight_hh" in name:
-                nn.init.orthogonal_(param)
+        # self.blstm = sb.nnet.RNN.LSTM(
+        #     input_size=input_size,
+        #     hidden_size=hidden_size,
+        #     num_layers=num_layers,
+        #     dropout=dropout,
+        #     bidirectional=True,
+        # )
+        # """
+        # Use orthogonal init for recurrent layers, xavier uniform for input layers
+        # Bias is 0
+        # """
+        # for name, param in self.blstm.named_parameters():
+        #     if "bias" in name:
+        #         nn.init.zeros_(param)
+        #     elif "weight_ih" in name:
+        #         nn.init.xavier_uniform_(param)
+        #     elif "weight_hh" in name:
+        #         nn.init.orthogonal_(param)
+
+        self.gru_cell_f = torch.nn.GRUCell(input_size, hidden_size)
+        self.gru_cell_b = torch.nn.GRUCell(input_size, hidden_size)
+        
+        self.linear = KANLinear(hidden_size * 2, 257)
 
         # self.linear1 = xavier_init_layer(400, 300, spec_norm=False)
         # self.linear2 = xavier_init_layer(300, 257, spec_norm=False)
 
-        self.linear1 = KANLinear(400, 80)
-        self.linear2 = xavier_init_layer(80, 257, spec_norm=False)
+        # self.linear1 = KANLinear(400, 80)
+        # self.linear2 = xavier_init_layer(80, 257, spec_norm=False)
 
         self.Learnable_sigmoid = Learnable_sigmoid()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x, lengths):
+    def forward(self, x: torch.Tensor, lengths):
         """Processes the input tensor x and returns an output tensor."""
-        out, _ = self.blstm(x, lengths=lengths)
+        hidden_size = self.gru_cell_f.hidden_size
 
-        out = self.linear1(out)
-        # out = self.activation(out)
+        ht = torch.zeros((x.size(0), hidden_size * 2))
+        ht_f, ht_b  = ht.chunk(2, 1)
 
-        out = self.linear2(out)
+        out = torch.zeros(x.size(0), lengths, hidden_size * 2)
+        # out_f, out_b = out.chunk(2, 2)
+
+        for i in range(lengths):
+            ht_f = self.gru_cell_f(x[:, i, :], ht_f)
+            ht_b = self.gru_cell_b(x[:, -1 - i, :], ht_b)
+            
+            out[:, i, :] = self.linear(ht)
+
         out = self.Learnable_sigmoid(out)
 
         return out
