@@ -85,6 +85,8 @@ class EnhancementGenerator(nn.Module):
         # dropout=0,
     ):
         super().__init__()
+        self.hidden_size = hidden_size
+
         self.activation = nn.LeakyReLU(negative_slope=0.3)
 
         # self.blstm = sb.nnet.RNN.LSTM(
@@ -122,12 +124,10 @@ class EnhancementGenerator(nn.Module):
 
     def forward(self, x: torch.Tensor, lengths):
         """Processes the input tensor x and returns an output tensor."""
-        hidden_size = self.gru_cell_f.hidden_size
-
-        ht = torch.zeros((x.size(0), hidden_size * 2))
+        ht = torch.zeros((x.size(0), self.hidden_size * 2))
         ht_f, ht_b  = ht.chunk(2, 1)
 
-        out = torch.zeros(x.size(0), lengths, hidden_size * 2)
+        out = torch.zeros(x.size(0), lengths, self.hidden_size * 2)
         # out_f, out_b = out.chunk(2, 2)
 
         for i in range(lengths):
