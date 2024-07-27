@@ -108,8 +108,8 @@ class EnhancementGenerator(nn.Module):
         #     elif "weight_hh" in name:
         #         nn.init.orthogonal_(param)
 
-        self.gru_cell_f = torch.nn.GRUCell(input_size, hidden_size)
-        self.gru_cell_b = torch.nn.GRUCell(input_size, hidden_size)
+        self.gru_cell_f = torch.nn.GRUCell(input_size, hidden_size, device=device)
+        self.gru_cell_b = torch.nn.GRUCell(input_size, hidden_size, device=device)
         
         self.linear = KANLinear(hidden_size * 2, 257)
 
