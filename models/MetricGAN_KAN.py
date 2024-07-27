@@ -122,18 +122,18 @@ class EnhancementGenerator(nn.Module):
         self.Learnable_sigmoid = Learnable_sigmoid()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x: torch.Tensor, lengths: torch.Tensor):
+    def forward(self, x: torch.Tensor, lengths):
         """Processes the input tensor x and returns an output tensor."""
-        lengths = int(lengths)
         batch_size = x.size(0)
+        seq_lengths = x.size(1)
 
         ht = torch.zeros(batch_size, self.hidden_size * 2, device=device)
         ht_f, ht_b  = ht.chunk(2, 1)
 
-        out = torch.zeros(batch_size, lengths, 257, device=device)
+        out = torch.zeros(batch_size, seq_lengths, 257, device=device)
         # out_f, out_b = out.chunk(2, 2)
 
-        for i in range(lengths):
+        for i in range(seq_lengths):
             ht_f = self.gru_cell_f(x[:, i, :], ht_f)
             ht_b = self.gru_cell_b(x[:, -1 - i, :], ht_b)
             out[:, i, :] = self.linear(ht)
