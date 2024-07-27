@@ -122,8 +122,9 @@ class EnhancementGenerator(nn.Module):
         self.Learnable_sigmoid = Learnable_sigmoid()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x: torch.Tensor, lengths):
+    def forward(self, x: torch.Tensor, lengths: torch.Tensor):
         """Processes the input tensor x and returns an output tensor."""
+        lengths = int(lengths)
         batch_size = x.size(0)
         rnn_output_dim = int(self.hidden_size) * 2
 
