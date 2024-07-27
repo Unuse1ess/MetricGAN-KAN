@@ -127,7 +127,7 @@ class EnhancementGenerator(nn.Module):
         ht = torch.zeros((x.size(0), self.hidden_size * 2))
         ht_f, ht_b  = ht.chunk(2, 1)
 
-        out = torch.zeros(x.size(0), lengths, self.hidden_size * 2)
+        out = torch.zeros((x.size(0), lengths, self.hidden_size * 2))
         # out_f, out_b = out.chunk(2, 2)
 
         for i in range(lengths):
