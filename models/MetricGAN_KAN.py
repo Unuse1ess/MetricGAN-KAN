@@ -126,19 +126,16 @@ class EnhancementGenerator(nn.Module):
         """Processes the input tensor x and returns an output tensor."""
         lengths = int(lengths)
         batch_size = x.size(0)
-        rnn_output_dim = int(self.hidden_size) * 2
 
-        ht = torch.zeros(batch_size, rnn_output_dim, device=device)
+        ht = torch.zeros(batch_size, self.hidden_size * 2, device=device)
         ht_f, ht_b  = ht.chunk(2, 1)
 
-        out = torch.zeros(batch_size, lengths, rnn_output_dim, device=device)
+        out = torch.zeros(batch_size, lengths, 257, device=device)
         # out_f, out_b = out.chunk(2, 2)
 
         for i in range(lengths):
             ht_f = self.gru_cell_f(x[:, i, :], ht_f)
             ht_b = self.gru_cell_b(x[:, -1 - i, :], ht_b)
-            print(ht.shape)
-            print(out[:, i, :].shape)
             out[:, i, :] = self.linear(ht)
 
         out = self.Learnable_sigmoid(out)
