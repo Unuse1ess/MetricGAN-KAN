@@ -125,10 +125,12 @@ class EnhancementGenerator(nn.Module):
     def forward(self, x: torch.Tensor, lengths):
         """Processes the input tensor x and returns an output tensor."""
         batch_size = x.size(0)
-        ht = torch.zeros((batch_size, self.hidden_size * 2))
+        rnn_output_dim = int(self.hidden_size) * 2
+
+        ht = torch.zeros((batch_size, rnn_output_dim))
         ht_f, ht_b  = ht.chunk(2, 1)
 
-        out = torch.zeros((batch_size, lengths, self.hidden_size * 2))
+        out = torch.zeros((batch_size, lengths, rnn_output_dim))
         # out_f, out_b = out.chunk(2, 2)
 
         for i in range(lengths):
