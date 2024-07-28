@@ -135,9 +135,11 @@ class EnhancementGenerator(nn.Module):
         # out_f, out_b = out.chunk(2, 2)
 
         for i in range(seq_lengths):
-            for j in range(1, self.num_layers + 1):
-                ht_f[j, :, :] = self.gru_cell_f[j - 1](x[:, i, :], ht_f[j - 1, :, :].clone())
-                ht_b[j, :, :] = self.gru_cell_b[j - 1](x[:, -1 - i, :], ht_b[j - 1, :, :].clone())
+            ht_f[1, :, :] = self.gru_cell_f[0](x[:, i, :], ht_f[0, :, :])
+            ht_b[1, :, :] = self.gru_cell_b[0](x[:, -1 - i, :], ht_b[0, :, :])
+            for j in range(1, self.num_layers):
+                ht_f[j, :, :] = self.gru_cell_f[j - 1](ht_f[j - 1, :, :], ht_f[j, :, :])
+                ht_b[j, :, :] = self.gru_cell_b[j - 1](ht_b[j - 1, :, :], ht_b[j, :, :])
             out[:, i, :] = self.linear(ht[-1, :, :])
 
         out = self.Learnable_sigmoid(out)
