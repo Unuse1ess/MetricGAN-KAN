@@ -128,7 +128,7 @@ class EnhancementGenerator(nn.Module):
         batch_size = x.size(0)
         seq_lengths = x.size(1)
 
-        ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device, requires_grad=True)
+        ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device)
         ht_f, ht_b  = ht.chunk(2, 2)
 
         out = torch.zeros(batch_size, seq_lengths, 257, device=device)
@@ -136,9 +136,9 @@ class EnhancementGenerator(nn.Module):
 
         for i in range(seq_lengths):
             for j in range(1, self.num_layers + 1):
-                ht_f[j, :, :] = self.gru_cell_f[j - 1](x[:, i, :], ht_f[j - 1, :, :])
-                ht_b[j, :, :] = self.gru_cell_b[j - 1](x[:, -1 - i, :], ht_b[j - 1, :, :])
-            out[:, i, :] = self.linear(ht)
+                ht_f[j, :, :] = self.gru_cell_f[j - 1](x[:, i, :], ht_f[j - 1, :, :]).clone()
+                ht_b[j, :, :] = self.gru_cell_b[j - 1](x[:, -1 - i, :], ht_b[j - 1, :, :]).clone()
+            out[:, i, :] = self.linear(ht[-1, :, :])
 
         out = self.Learnable_sigmoid(out)
 
