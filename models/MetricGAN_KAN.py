@@ -128,7 +128,7 @@ class EnhancementGenerator(nn.Module):
         batch_size = x.size(0)
         seq_lengths = x.size(1)
 
-        ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device)
+        ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device, requires_grad=True)
         ht_f, ht_b  = ht.chunk(2, 2)
 
         out = torch.zeros(batch_size, seq_lengths, 257, device=device)
