@@ -158,13 +158,13 @@ class EnhancementGenerator(nn.Module):
 
         for i in range(seq_lengths):
             ht_f, ht_b = ht[0].chunk(2, 1)
-            ht_f = self.gru_cell_f[0](x[:, i, :], ht_f)
-            ht_b = self.gru_cell_b[0](x[:, -1 - i, :], ht_b)
+            ht_f[:, :] = self.gru_cell_f[0](x[:, i, :], ht_f)
+            ht_b[:, :] = self.gru_cell_b[0](x[:, -1 - i, :], ht_b)
             for j in range(1, self.num_layers):
                 ht_f, ht_b = ht[j].chunk(2, 1)
                 ht_f_0, ht_b_0 = ht[j - 1].chunk(2, 1)
-                ht_f = self.gru_cell_f[j - 1](ht_f_0, ht_f)
-                ht_b = self.gru_cell_b[j - 1](ht_b_0, ht_b)
+                ht_f[:, :] = self.gru_cell_f[j - 1](ht_f_0, ht_f)
+                ht_b[:, :] = self.gru_cell_b[j - 1](ht_b_0, ht_b)
             out[:, i, :] = self.linear(ht[-1])
 
         out = self.Learnable_sigmoid(out)
