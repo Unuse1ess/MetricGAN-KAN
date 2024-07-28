@@ -133,7 +133,7 @@ class EnhancementGenerator(nn.Module):
 
         out = torch.zeros(batch_size, seq_lengths, 257, device=device)
         # out_f, out_b = out.chunk(2, 2)
-        torch.Tensor.copy_()
+        # torch.Tensor.copy_()
 
         for i in range(seq_lengths):
             for j in range(1, self.num_layers + 1):
