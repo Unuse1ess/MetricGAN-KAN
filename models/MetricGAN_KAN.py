@@ -109,8 +109,12 @@ class EnhancementGenerator(nn.Module):
         #     elif "weight_hh" in name:
         #         nn.init.orthogonal_(param)
 
-        self.gru_cell_f = torch.nn.ModuleList([torch.nn.GRUCell(input_size, hidden_size, device=device) for _ in range(self.num_layers)])
-        self.gru_cell_b = torch.nn.ModuleList([torch.nn.GRUCell(input_size, hidden_size, device=device) for _ in range(self.num_layers)])
+        self.gru_cell_f = nn.ModuleList([nn.GRUCell(input_size, hidden_size, device=device),
+            *(nn.GRUCell(hidden_size, hidden_size, device=device) for _ in range(self.num_layers - 1))
+            ])
+        self.gru_cell_b = nn.ModuleList([nn.GRUCell(input_size, hidden_size, device=device),
+            *(nn.GRUCell(hidden_size, hidden_size, device=device) for _ in range(self.num_layers - 1))
+            ])
         
         self.linear = KANLinear(hidden_size * 2, 257)
 
@@ -121,26 +125,47 @@ class EnhancementGenerator(nn.Module):
         # self.linear2 = xavier_init_layer(80, 257, spec_norm=False)
 
         self.Learnable_sigmoid = Learnable_sigmoid()
-        self.sigmoid = nn.Sigmoid()
+        # self.sigmoid = nn.Sigmoid()
 
     def forward(self, x: torch.Tensor, lengths):
         """Processes the input tensor x and returns an output tensor."""
         batch_size = x.size(0)
         seq_lengths = x.size(1)
 
-        ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device)
-        ht_f, ht_b  = ht.chunk(2, 2)
+        # ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device)
+        ht = [torch.zeros(batch_size, self.hidden_size * 2, device=device) for _ in range(self.num_layers)]
+        # ht_f, ht_b  = ht.chunk(2, 2)
 
         out = torch.zeros(batch_size, seq_lengths, 257, device=device)
-        # out_f, out_b = out.chunk(2, 2)
+
+    
+        # ht_f, ht_b = ht[0].chunk(2, 1)
+        # for j in range(seq_lengths):
+        #     ht_f = self.gru_cell_f[0](x[:, j, :], ht_f)
+        #     ht_b = self.gru_cell_b[0](x[:, -1 - j, :], ht_b)
+        # for i in range(1, self.num_layers):
+        #     ht_f, ht_b = ht[i].chunk(2, 1)
+        #     ht_f_0, ht_b_0 = ht[i - 1].chunk(2, 1)
+        #     for j in range(seq_lengths):
+        #         ht_f = self.gru_cell_f[i - 1](ht_f_0, ht_f)
+        #         ht_b = self.gru_cell_b[i - 1](ht_b_0, ht_b)
+
+        # for j in range(seq_lengths):
+        #     ht_f = self.gru_cell_f[0](x[:, j, :], ht_f)
+        #     ht_b = self.gru_cell_b[0](x[:, -1 - j, :], ht_b)
+        # out[:, i, :] = self.linear(ht[-1])
+            
 
         for i in range(seq_lengths):
-            ht_f[1, :, :] = self.gru_cell_f[0](x[:, i, :], ht_f[0, :, :])
-            ht_b[1, :, :] = self.gru_cell_b[0](x[:, -1 - i, :], ht_b[0, :, :])
+            ht_f, ht_b = ht[0].chunk(2, 1)
+            ht_f = self.gru_cell_f[0](x[:, i, :], ht_f)
+            ht_b = self.gru_cell_b[0](x[:, -1 - i, :], ht_b)
             for j in range(1, self.num_layers):
-                ht_f[j, :, :] = self.gru_cell_f[j - 1](ht_f[j - 1, :, :], ht_f[j, :, :])
-                ht_b[j, :, :] = self.gru_cell_b[j - 1](ht_b[j - 1, :, :], ht_b[j, :, :])
-            out[:, i, :] = self.linear(ht[-1, :, :])
+                ht_f, ht_b = ht[j].chunk(2, 1)
+                ht_f_0, ht_b_0 = ht[j - 1].chunk(2, 1)
+                ht_f = self.gru_cell_f[j - 1](ht_f_0, ht_f)
+                ht_b = self.gru_cell_b[j - 1](ht_b_0, ht_b)
+            out[:, i, :] = self.linear(ht[-1])
 
         out = self.Learnable_sigmoid(out)
 
