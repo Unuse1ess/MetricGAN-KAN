@@ -81,11 +81,12 @@ class EnhancementGenerator(nn.Module):
         self,
         input_size=257,
         hidden_size=40,
-        # num_layers=2,
+        num_layers=2,
         # dropout=0,
     ):
         super().__init__()
         self.hidden_size = hidden_size
+        self.num_layers = num_layers
 
         self.activation = nn.LeakyReLU(negative_slope=0.3)
 
@@ -108,8 +109,8 @@ class EnhancementGenerator(nn.Module):
         #     elif "weight_hh" in name:
         #         nn.init.orthogonal_(param)
 
-        self.gru_cell_f = torch.nn.GRUCell(input_size, hidden_size, device=device)
-        self.gru_cell_b = torch.nn.GRUCell(input_size, hidden_size, device=device)
+        self.gru_cell_f = torch.nn.ModuleList([torch.nn.GRUCell(input_size, hidden_size, device=device) for _ in self.num_layers])
+        self.gru_cell_b = torch.nn.ModuleList([torch.nn.GRUCell(input_size, hidden_size, device=device) for _ in self.num_layers])
         
         self.linear = KANLinear(hidden_size * 2, 257)
 
@@ -127,15 +128,16 @@ class EnhancementGenerator(nn.Module):
         batch_size = x.size(0)
         seq_lengths = x.size(1)
 
-        ht = torch.zeros(batch_size, self.hidden_size * 2, device=device)
-        ht_f, ht_b  = ht.chunk(2, 1)
+        ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device)
+        ht_f, ht_b  = ht.chunk(2, 2)
 
         out = torch.zeros(batch_size, seq_lengths, 257, device=device)
         # out_f, out_b = out.chunk(2, 2)
 
         for i in range(seq_lengths):
-            ht_f = self.gru_cell_f(x[:, i, :], ht_f)
-            ht_b = self.gru_cell_b(x[:, -1 - i, :], ht_b)
+            for j in range(1, self.num_layers + 1):
+                ht_f[j, :, :] = self.gru_cell_f(x[:, i, :], ht_f[j - 1, :, :])
+                ht_b[j, :, :] = self.gru_cell_b(x[:, -1 - i, :], ht_b[j - 1, :, :])
             out[:, i, :] = self.linear(ht)
 
         out = self.Learnable_sigmoid(out)
