@@ -140,23 +140,6 @@ class EnhancementGenerator(nn.Module):
         out = torch.zeros(batch_size, seq_lengths, 257, device=device)
 
     
-        # ht_f, ht_b = ht[0].chunk(2, 1)
-        # for j in range(seq_lengths):
-        #     ht_f = self.gru_cell_f[0](x[:, j, :], ht_f)
-        #     ht_b = self.gru_cell_b[0](x[:, -1 - j, :], ht_b)
-        # for i in range(1, self.num_layers):
-        #     ht_f, ht_b = ht[i].chunk(2, 1)
-        #     ht_f_0, ht_b_0 = ht[i - 1].chunk(2, 1)
-        #     for j in range(seq_lengths):
-        #         ht_f = self.gru_cell_f[i - 1](ht_f_0, ht_f)
-        #         ht_b = self.gru_cell_b[i - 1](ht_b_0, ht_b)
-
-        # for j in range(seq_lengths):
-        #     ht_f = self.gru_cell_f[0](x[:, j, :], ht_f)
-        #     ht_b = self.gru_cell_b[0](x[:, -1 - j, :], ht_b)
-        # out[:, i, :] = self.linear(ht[-1])
-            
-
         for i in range(seq_lengths):
             ht_f[0] = self.gru_cell_f[0](x[:, i, :], ht_f[0])
             ht_b[0] = self.gru_cell_b[0](x[:, -1 - i, :], ht_b[0])
@@ -214,9 +197,9 @@ class MetricDiscriminator(nn.Module):
         self.conv4 = xavier_init_layer(
             base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
         )
-        self.Linear1 = xavier_init_layer(base_channels, out_size=50)
-        self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
-        self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
+        # self.Linear1 = xavier_init_layer(base_channels, out_size=50)
+        # self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
+        # self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
 
         # Modifications
 
@@ -227,7 +210,7 @@ class MetricDiscriminator(nn.Module):
         # self.conv3 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv4 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
 
-        # self.Linear1 = KANLinear(in_features=2*base_channels*base_channels, out_features=1)
+        self.Linear1 = KANLinear(in_features=2*base_channels*base_channels, out_features=1)
         # self.Linear2 = KANLinear(in_features=50, out_features=1)
         # self.Linear3 = KANLinear(in_features=10, out_features=1)
 
@@ -250,11 +233,11 @@ class MetricDiscriminator(nn.Module):
         out = torch.mean(out, (2, 3))
 
         out = self.Linear1(out)
-        out = self.activation(out)
+        # out = self.activation(out)
 
-        out = self.Linear2(out)
-        out = self.activation(out)
+        # out = self.Linear2(out)
+        # out = self.activation(out)
 
-        out = self.Linear3(out)
+        # out = self.Linear3(out)
 
         return out
