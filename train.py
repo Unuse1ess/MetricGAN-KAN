@@ -673,6 +673,6 @@ if __name__ == "__main__":
 
     # Show parameters summary
     param_count = sum(p.numel() for p in se_brain.modules.generator.parameters() if p.requires_grad)
-    se_brain.hparams.train_logger.log_stats({"Generator parameter count": {param_count}})
+    se_brain.hparams.train_logger.log_stats({"Generator parameter count": param_count})
     param_count = sum(p.numel() for p in se_brain.modules.discriminator.parameters() if p.requires_grad)
-    se_brain.hparams.train_logger.log_stats({"Discriminator parameter count": {param_count}})
+    se_brain.hparams.train_logger.log_stats({"Discriminator parameter count": param_count})
