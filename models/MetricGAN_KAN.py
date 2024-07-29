@@ -210,7 +210,7 @@ class MetricDiscriminator(nn.Module):
         # self.conv3 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv4 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
 
-        self.Linear1 = KANLinear(in_features=2*base_channels*base_channels, out_features=1)
+        self.Linear1 = KANLinear(in_features=base_channels, out_features=1)
         # self.Linear2 = KANLinear(in_features=50, out_features=1)
         # self.Linear3 = KANLinear(in_features=10, out_features=1)
 
@@ -230,9 +230,9 @@ class MetricDiscriminator(nn.Module):
         out = self.conv4(out)
         out = self.activation(out)
 
-        print(out.shape)
+        # print(out.shape)
         out = torch.mean(out, (2, 3))
-        print(out.shape)
+        # print(out.shape)
 
         out = self.Linear1(out)
         # out = self.activation(out)
