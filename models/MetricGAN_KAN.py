@@ -81,8 +81,8 @@ class EnhancementGenerator(nn.Module):
         self,
         input_size=257,
         hidden_size=40,
-        num_layers=2,
-        # dropout=0,
+        num_layers=1,
+        dropout=0,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -90,31 +90,25 @@ class EnhancementGenerator(nn.Module):
 
         self.activation = nn.LeakyReLU(negative_slope=0.3)
 
-        # self.blstm = sb.nnet.RNN.LSTM(
-        #     input_size=input_size,
-        #     hidden_size=hidden_size,
-        #     num_layers=num_layers,
-        #     dropout=dropout,
-        #     bidirectional=True,
-        # )
-        # """
-        # Use orthogonal init for recurrent layers, xavier uniform for input layers
-        # Bias is 0
-        # """
-        # for name, param in self.blstm.named_parameters():
-        #     if "bias" in name:
-        #         nn.init.zeros_(param)
-        #     elif "weight_ih" in name:
-        #         nn.init.xavier_uniform_(param)
-        #     elif "weight_hh" in name:
-        #         nn.init.orthogonal_(param)
+        self.bgru = sb.nnet.RNN.GRU(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout,
+            bidirectional=True,
+        )
+        """
+        Use orthogonal init for recurrent layers, xavier uniform for input layers
+        Bias is 0
+        """
+        for name, param in self.bgru.named_parameters():
+            if "bias" in name:
+                nn.init.zeros_(param)
+            elif "weight_ih" in name:
+                nn.init.xavier_uniform_(param)
+            elif "weight_hh" in name:
+                nn.init.orthogonal_(param)
 
-        self.gru_cell_f = nn.ModuleList([nn.GRUCell(input_size, hidden_size, device=device),
-            *(nn.GRUCell(hidden_size, hidden_size, device=device) for _ in range(self.num_layers - 1))
-            ])
-        self.gru_cell_b = nn.ModuleList([nn.GRUCell(input_size, hidden_size, device=device),
-            *(nn.GRUCell(hidden_size, hidden_size, device=device) for _ in range(self.num_layers - 1))
-            ])
         
         self.linear = KANLinear(hidden_size * 2, 257)
 
@@ -129,24 +123,8 @@ class EnhancementGenerator(nn.Module):
 
     def forward(self, x: torch.Tensor, lengths):
         """Processes the input tensor x and returns an output tensor."""
-        batch_size = x.size(0)
-        seq_lengths = x.size(1)
-
-        # ht = torch.zeros(self.num_layers + 1, batch_size, self.hidden_size * 2, device=device)
-        ht_f = [torch.zeros(batch_size, self.hidden_size, device=device), *(None for _ in range(self.num_layers - 1))]
-        ht_b = [torch.zeros(batch_size, self.hidden_size, device=device), *(None for _ in range(self.num_layers - 1))]
-        # ht_f, ht_b  = ht.chunk(2, 2)
-
-        out = torch.zeros(batch_size, seq_lengths, 257, device=device)
-
-    
-        for i in range(seq_lengths):
-            ht_f[0] = self.gru_cell_f[0](x[:, i, :], ht_f[0])
-            ht_b[0] = self.gru_cell_b[0](x[:, -1 - i, :], ht_b[0])
-            for j in range(1, self.num_layers):
-                ht_f[j] = self.gru_cell_f[j](ht_f[j - 1], ht_f[j])
-                ht_b[j] = self.gru_cell_b[j](ht_b[j - 1], ht_b[j])
-            out[:, i, :] = self.linear(torch.concat((ht_f[-1], ht_b[-1]), 1))
+        out, _ = self.bgru(x, lengths=lengths)
+        out = self.linear(out)
 
         out = self.Learnable_sigmoid(out)
 
@@ -175,42 +153,42 @@ class MetricDiscriminator(nn.Module):
         self,
         kernel_size=(5, 5),
         base_channels=15,
-        activation=nn.LeakyReLU,
+        # activation=nn.LeakyReLU,
     ):
         super().__init__()
 
-        self.activation = activation(negative_slope=0.3)
+        # self.activation = activation(negative_slope=0.3)
 
         self.BN = nn.BatchNorm2d(num_features=2, momentum=0.01)
 
         # Original implementation
 
-        self.conv1 = xavier_init_layer(
-            2, base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        )
-        self.conv2 = xavier_init_layer(
-            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        )
-        self.conv3 = xavier_init_layer(
-            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        )
-        self.conv4 = xavier_init_layer(
-            base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
-        )
+        # self.conv1 = xavier_init_layer(
+        #     2, base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        # )
+        # self.conv2 = xavier_init_layer(
+        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        # )
+        # self.conv3 = xavier_init_layer(
+        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        # )
+        # self.conv4 = xavier_init_layer(
+        #     base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
+        # )
         # self.Linear1 = xavier_init_layer(base_channels, out_size=50)
         # self.Linear2 = xavier_init_layer(in_size=50, out_size=10)
         # self.Linear3 = xavier_init_layer(in_size=10, out_size=1)
 
         # Modifications
 
-        # self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
-        # self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
+        self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels>>1, kernel_size=kernel_size, device=device)
+        self.conv2 = KAN_Convolutional_Layer(n_convs=1, kernel_size=kernel_size, device=device)
         # self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(9, 9), device=device)
         # self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(3, 3), device=device)
         # self.conv3 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv4 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
 
-        self.Linear1 = KANLinear(in_features=base_channels, out_features=1)
+        self.Linear1 = KANLinear(in_features=2*base_channels, out_features=1)
         # self.Linear2 = KANLinear(in_features=50, out_features=1)
         # self.Linear3 = KANLinear(in_features=10, out_features=1)
 
@@ -218,17 +196,20 @@ class MetricDiscriminator(nn.Module):
         """Processes the input tensor x and returns an output tensor."""
         out = self.BN(x)
 
+        # out = self.conv1(out)
+        # out = self.activation(out)
+
+        # out = self.conv2(out)
+        # out = self.activation(out)
+
+        # out = self.conv3(out)
+        # out = self.activation(out)
+
+        # out = self.conv4(out)
+        # out = self.activation(out)
+
         out = self.conv1(out)
-        out = self.activation(out)
-
         out = self.conv2(out)
-        out = self.activation(out)
-
-        out = self.conv3(out)
-        out = self.activation(out)
-
-        out = self.conv4(out)
-        out = self.activation(out)
 
         # print(out.shape)
         out = torch.mean(out, (2, 3))
