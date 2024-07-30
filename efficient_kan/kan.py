@@ -151,6 +151,8 @@ class KANLinear(torch.nn.Module):
         )
 
     def forward(self, x: torch.Tensor):
+        if x.size(-1) != self.in_features:
+            raise RuntimeError(f"The input shape {x.shape} does not match the layer input size {self.in_features}.")
         assert x.size(-1) == self.in_features
         original_shape = x.shape
         x = x.reshape(-1, self.in_features)
