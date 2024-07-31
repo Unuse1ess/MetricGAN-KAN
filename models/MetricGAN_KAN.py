@@ -10,7 +10,8 @@ from torch import nn
 from torch.nn.utils import spectral_norm
 
 from efficient_kan import KANLinear
-from kan_convolutional.KANConv import KAN_Convolutional_Layer
+# from kan_convolutional.KANConv import KAN_Convolutional_Layer
+from kan_convs import KANConv2DLayer
 
 import speechbrain as sb
 
@@ -181,14 +182,14 @@ class MetricDiscriminator(nn.Module):
 
         # Modifications
 
-        self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
-        self.conv2 = KAN_Convolutional_Layer(n_convs=1, kernel_size=kernel_size, device=device)
+        self.conv1 = KANConv2DLayer(2, base_channels, kernel_size)
+        self.conv2 = KANConv2DLayer(base_channels, base_channels, kernel_size)
         # self.conv1 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(9, 9), device=device)
         # self.conv2 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=(3, 3), device=device)
         # self.conv3 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
         # self.conv4 = KAN_Convolutional_Layer(n_convs=base_channels, kernel_size=kernel_size, device=device)
 
-        self.Linear1 = KANLinear(in_features=2*base_channels, out_features=1)
+        self.Linear1 = KANLinear(in_features=base_channels, out_features=1)
         # self.Linear2 = KANLinear(in_features=50, out_features=1)
         # self.Linear3 = KANLinear(in_features=10, out_features=1)
 
