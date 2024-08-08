@@ -130,7 +130,7 @@ class EnhancementGenerator(nn.Module):
         ht_f = [torch.zeros(batch_size, self.hidden_size, device=device), *(None for _ in range(self.num_layers - 1))]
         ht_b = [torch.zeros(batch_size, self.hidden_size, device=device), *(None for _ in range(self.num_layers - 1))]
 
-        out = torch.zeros(batch_size, seq_lengths, 257, device=device)
+        out = torch.zeros(batch_size, seq_lengths, self.hidden_size * 2, device=device)
 
         for i in range(seq_lengths):
             ht_f[0] = self.gru_cell_f[0](x[:, i, :], ht_f[0])
