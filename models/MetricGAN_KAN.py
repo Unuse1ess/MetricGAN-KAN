@@ -179,8 +179,8 @@ class MetricDiscriminator(nn.Module):
         # Modifications
 
         self.conv1 = KANConv2DLayer(2, base_channels, kernel_size, base_activation=nn.SiLU)
-        self.conv2 = KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU)
-        self.conv3 = KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU)
+        # self.conv2 = KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU)
+        # self.conv3 = KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU)
 
         self.Linear1 = KANLinear(in_features=base_channels, out_features=1)
 
@@ -189,8 +189,8 @@ class MetricDiscriminator(nn.Module):
         out = self.BN(x)
 
         out = self.conv1(out)
-        out = self.conv2(out)
-        out = self.conv3(out)
+        # out = self.conv2(out)
+        # out = self.conv3(out)
 
         out = torch.mean(out, (2, 3))
 

@@ -7,12 +7,12 @@
 # Neural parameters
 kernel_size: (5,5)
 #base_channels: 15
-base_channels: 15
+base_channels: 20
 
 N_fft: !PLACEHOLDER
 
-#generator: !new:speechbrain.lobes.models.MetricGAN.EnhancementGenerator
-generator: !new:models.MetricGAN_KAN.EnhancementGenerator
+generator: !new:speechbrain.lobes.models.MetricGAN.EnhancementGenerator
+#generator: !new:models.MetricGAN_KAN.EnhancementGenerator
 
 #discriminator: !new:speechbrain.lobes.models.MetricGAN.MetricDiscriminator
 discriminator: !new:models.MetricGAN_KAN.MetricDiscriminator

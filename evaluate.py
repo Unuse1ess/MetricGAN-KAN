@@ -67,15 +67,6 @@ if __name__ == "__main__":
         shutil.rmtree(hparams["MetricGAN_KAN_folder"])
     run_on_main(create_folder, kwargs={"folder": hparams["MetricGAN_KAN_folder"]})
 
-    se_brain.load_history()
-    # Load latest checkpoint to resume training
-    # se_brain.fit(
-    #     epoch_counter=se_brain.hparams.epoch_counter,
-    #     train_set=datasets["train"],
-    #     valid_set=datasets["valid"],
-    #     train_loader_kwargs=hparams["dataloader_options"],
-    #     valid_loader_kwargs=hparams["valid_dataloader_options"],
-    # )
 
     # Load best checkpoint for evaluation
     test_stats = se_brain.evaluate(
