@@ -11,10 +11,10 @@
 seed: 4234
 __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 
-data_folder: /mnt/parscratch/users/acq22ym/private/voice_bank/noisy-vctk-16k # e.g, /data/member1/user_jasonfu/noisy-vctk-16k
+data_folder: !PLACEHOLDER # e.g, /data/member1/user_jasonfu/noisy-vctk-16k
 
 MetricGAN_KAN_folder: !ref <output_folder>/enhanced_wavs
-output_folder: !ref /mnt/parscratch/users/acq22ym/private/MetricGAN_KAN-d0/<seed> # hp for history portion
+output_folder: !ref ./MetricGAN_KAN/d2/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 enhanced_folder: !ref <output_folder>/enhanced_wavs
@@ -44,7 +44,6 @@ target_metric: pesq
 # n_jobs: 1 # Jobs for metric eval (increase to speed up)
 n_jobs: 4
 # Training Parameters
-#number_of_epochs: 750
 number_of_epochs: 400
 number_of_samples: 50
 min_mask: 0.05
@@ -62,10 +61,7 @@ valid_dataloader_options:
     batch_size: !ref <valid_N_batch>
 
 # Change this import to use a different model
-# Manually create the GAN model at train.py
-models: !include:../models/model.yaml
-    # generator: !PLACEHOLDER
-    # discriminator: !PLACEHOLDER
+models: !include:../models/mgk_d2.yaml
     N_fft: !ref <N_fft>
 
 epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter
