@@ -29,7 +29,7 @@ class MetricDiscriminator(nn.Module):
     def __init__(
         self,
         kernel_size=(5, 5),
-        base_channels=15,
+        base_channels=20,
         num_layers=1
     ):
         super().__init__()
@@ -38,7 +38,7 @@ class MetricDiscriminator(nn.Module):
 
         self.BN = nn.BatchNorm2d(num_features=2, momentum=0.01)
         
-        self.convs = nn.Sequential([
+        self.convs = nn.Sequential(*[
             KANConv2DLayer(2, base_channels, kernel_size, base_activation=nn.SiLU),
             *[KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU) for _ in range(num_layers - 1)]
         ])

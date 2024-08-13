@@ -20,6 +20,9 @@ def xavier_init_layer(
 
     return layer
 
+def get_model_param(model: nn.Module):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
 
 class Learnable_sigmoid(nn.Module):
     """Implementation of a leanable sigmoid.
@@ -41,3 +44,4 @@ class Learnable_sigmoid(nn.Module):
     def forward(self, x):
         """Processes the input tensor x and returns an output tensor."""
         return 1.2 * torch.sigmoid(self.slope * x)
+
