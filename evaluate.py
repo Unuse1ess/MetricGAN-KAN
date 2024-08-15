@@ -53,8 +53,16 @@ class MGKBrain(sb.Brain):
         cc = self.est_score(clean_spec, clean_spec)
         ec = self.est_score(est_spec, clean_spec)
 
-        target_nc = pesq_eval(noisy_wav, clean_wav)
-        target_ec = pesq_eval(predict_wav, clean_wav)
+        pesq_metric = MetricStats(metric=pesq_eval, n_jobs=hparams["n_jobs"], batch_eval=False)
+        pesq_metric.append(batch.id, predict=noisy_wav, target=clean_wav, lengths=lens)
+        target_nc = pesq_metric.summarize("average")
+
+        pesq_metric = MetricStats(metric=pesq_eval, n_jobs=hparams["n_jobs"], batch_eval=False)
+        pesq_metric.append(batch.id, predict=predict_wav, target=clean_wav, lengths=lens)
+        target_ec = pesq_metric.summarize("average")
+
+        # target_nc = pesq_eval(noisy_wav, clean_wav)
+        # target_ec = pesq_eval(predict_wav, clean_wav)
 
         self.nc_metric(batch.id, predict=nc, target=target_nc, lengths=lens)
         self.ec_metric(batch.id, predict=ec, target=target_ec, lengths=lens)
