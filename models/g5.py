@@ -8,22 +8,22 @@ Adapted by: Yemin Mai 2024
 from torch import nn
 import speechbrain as sb
 
-from efficient_kan import KANLinear
 from models.utils import *
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class EnhancementGenerator(nn.Module):
-    """Simple GRU-KAN for enhancement with custom initialization.
+    """
+    This generator does not contain KAN layers.
 
     Arguments
     ---------
     input_size : int
         Size of the input tensor's last dimension.
     hidden_size : int
-        Number of neurons to use in the GRU-KAN layers.
+        Number of neurons to use in the GRU layers.
     num_layers : int
-        Number of layers to use in the GRU-KAN.
+        Number of layers to use in the GRU.
     dropout : int
         Fraction of neurons to drop during training.
     """
@@ -31,50 +31,45 @@ class EnhancementGenerator(nn.Module):
     def __init__(
         self,
         input_size=257,
-        hidden_size=40,
-        num_layers=2,
-        # dropout=0,
+        hidden_size=100,
+        num_layers=1,
+        dropout=0,
     ):
         super().__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
+        self.activation = nn.LeakyReLU(negative_slope=0.3)
 
-        # self.activation = nn.LeakyReLU(negative_slope=0.3)
+        self.bgru = sb.nnet.RNN.GRU(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            dropout=dropout,
+            bidirectional=True,
+        )
+        """
+        Use orthogonal init for recurrent layers, xavier uniform for input layers
+        Bias is 0
+        """
+        for name, param in self.bgru.named_parameters():
+            if "bias" in name:
+                nn.init.zeros_(param)
+            elif "weight_ih" in name:
+                nn.init.xavier_uniform_(param)
+            elif "weight_hh" in name:
+                nn.init.orthogonal_(param)
 
-        self.gru_cell_f = nn.ModuleList([
-                nn.GRUCell(input_size, hidden_size),
-                *(nn.GRUCell(hidden_size, hidden_size) for _ in range(self.num_layers - 1))
-            ])
-        self.gru_cell_b = nn.ModuleList([
-                nn.GRUCell(input_size, hidden_size),
-                *(nn.GRUCell(hidden_size, hidden_size) for _ in range(self.num_layers - 1))
-            ])
-        
-        self.gru_linear = KANLinear(hidden_size * 2, hidden_size * 2)
-        self.linear = KANLinear(hidden_size * 2, 257)
+        self.linear1 = xavier_init_layer(2 * hidden_size, 300, spec_norm=False)
+        self.linear2 = xavier_init_layer(300, 257, spec_norm=False)
 
         self.Learnable_sigmoid = Learnable_sigmoid()
 
-    def forward(self, x: torch.Tensor, lengths):
+    def forward(self, x, lengths):
         """Processes the input tensor x and returns an output tensor."""
-        device = x.device
-        batch_size = x.size(0)
-        seq_lengths = x.size(1)
+        out, _ = self.bgru(x, lengths=lengths)
 
-        ht_f = [torch.zeros(batch_size, self.hidden_size, device=device), *(None for _ in range(self.num_layers - 1))]
-        ht_b = [torch.zeros(batch_size, self.hidden_size, device=device), *(None for _ in range(self.num_layers - 1))]
+        out = self.linear1(out)
+        out = self.activation(out)
 
-        out = torch.zeros(batch_size, seq_lengths, self.hidden_size * 2, device=device)
-
-        for i in range(seq_lengths):
-            ht_f[0] = self.gru_cell_f[0](x[:, i, :], ht_f[0])
-            ht_b[0] = self.gru_cell_b[0](x[:, -1 - i, :], ht_b[0])
-            for j in range(1, self.num_layers):
-                ht_f[j] = self.gru_cell_f[j](ht_f[j - 1], ht_f[j])
-                ht_b[j] = self.gru_cell_b[j](ht_b[j - 1], ht_b[j])
-            out[:, i, :] = self.gru_linear(torch.concat((ht_f[-1], ht_b[-1]), 1))
-
-        out = self.linear(out)
+        out = self.linear2(out)
         out = self.Learnable_sigmoid(out)
 
         return out

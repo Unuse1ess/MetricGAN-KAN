@@ -1,5 +1,5 @@
 """
-Discriminator d1
+Discriminator d3
 
 Original Author: Szu-Wei Fu 2020
 Adapted by: Yemin Mai 2024
@@ -29,8 +29,8 @@ class MetricDiscriminator(nn.Module):
     def __init__(
         self,
         kernel_size=(5, 5),
-        base_channels=15,
-        num_layers=2
+        base_channels=20,
+        num_layers=1
     ):
         super().__init__()
 

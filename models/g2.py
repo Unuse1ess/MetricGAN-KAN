@@ -1,5 +1,5 @@
 """
-Generator g2
+Generator g1
 
 Original Author: Szu-Wei Fu 2020
 Adapted by: Yemin Mai 2024
@@ -13,7 +13,6 @@ from models.utils import *
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# The same as g1 but some hyper-params, but here g2 is still preserved
 class EnhancementGenerator(nn.Module):
     """
     Arguments
@@ -31,8 +30,8 @@ class EnhancementGenerator(nn.Module):
     def __init__(
         self,
         input_size=257,
-        hidden_size=40,
-        num_layers=1,
+        hidden_size=200,
+        num_layers=2,
         dropout=0,
     ):
         super().__init__()
@@ -56,6 +55,7 @@ class EnhancementGenerator(nn.Module):
                 nn.init.xavier_uniform_(param)
             elif "weight_hh" in name:
                 nn.init.orthogonal_(param)
+
 
         self.linear1 = KANLinear(2 * hidden_size, 257)
 

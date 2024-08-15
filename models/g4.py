@@ -8,14 +8,13 @@ Adapted by: Yemin Mai 2024
 from torch import nn
 import speechbrain as sb
 
+from efficient_kan import KANLinear
 from models.utils import *
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class EnhancementGenerator(nn.Module):
     """
-    This generator does not contain KAN layers.
-
     Arguments
     ---------
     input_size : int
@@ -31,7 +30,7 @@ class EnhancementGenerator(nn.Module):
     def __init__(
         self,
         input_size=257,
-        hidden_size=100,
+        hidden_size=40,
         num_layers=1,
         dropout=0,
     ):
@@ -57,8 +56,7 @@ class EnhancementGenerator(nn.Module):
             elif "weight_hh" in name:
                 nn.init.orthogonal_(param)
 
-        self.linear1 = xavier_init_layer(2 * hidden_size, 300, spec_norm=False)
-        self.linear2 = xavier_init_layer(300, 257, spec_norm=False)
+        self.linear1 = KANLinear(hidden_size * 2, 257)
 
         self.Learnable_sigmoid = Learnable_sigmoid()
 
@@ -67,9 +65,6 @@ class EnhancementGenerator(nn.Module):
         out, _ = self.bgru(x, lengths=lengths)
 
         out = self.linear1(out)
-        out = self.activation(out)
-
-        out = self.linear2(out)
         out = self.Learnable_sigmoid(out)
 
         return out

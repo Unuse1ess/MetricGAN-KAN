@@ -1,17 +1,17 @@
 # ################################
-# Model: MetricGAN+KAN-g5-d1
+# Model: MetricGAN+KAN-d3
 # Original Author: Szu-Wei Fu 2021
 # Adapted by: Yemin Mai 2024
 # ################################
 
 kernel_size: (5,5)
-base_channels: 15
+base_channels: 20
 
 N_fft: !PLACEHOLDER
 
-generator: !new:models.g5.EnhancementGenerator
+generator: !new:speechbrain.lobes.models.MetricGAN.EnhancementGenerator
 
 discriminator: !new:models.d1.MetricDiscriminator
     kernel_size: !ref <kernel_size>
     base_channels: !ref <base_channels>
-    num_layers: 2
+    num_layers: 1

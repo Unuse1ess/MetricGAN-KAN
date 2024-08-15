@@ -1,9 +1,7 @@
 # ################################
-# Model: MetricGAN+KAN-g4
+# Model: MetricGAN+KAN-g3
 # Original Author: Szu-Wei Fu 2021
 # Adapted by: Yemin Mai 2024
-#
-# This model does not contain KAN layers.
 # ################################
 
 kernel_size: (5,5)

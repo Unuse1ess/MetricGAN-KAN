@@ -14,3 +14,4 @@ generator: !new:speechbrain.lobes.models.MetricGAN.EnhancementGenerator
 discriminator: !new:models.d1.MetricDiscriminator
     kernel_size: !ref <kernel_size>
     base_channels: !ref <base_channels>
+    num_layers: 3
