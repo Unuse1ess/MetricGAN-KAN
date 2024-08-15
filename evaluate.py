@@ -64,9 +64,9 @@ class MGKBrain(sb.Brain):
         # target_nc = pesq_eval(noisy_wav, clean_wav)
         # target_ec = pesq_eval(predict_wav, clean_wav)
 
-        self.nc_metric(batch.id, predict=nc, target=target_nc, lengths=lens)
-        self.ec_metric(batch.id, predict=ec, target=target_ec, lengths=lens)
-        self.cc_metric(batch.id, predict=cc, target=torch.ones(cc.shape), lengths=lens)
+        self.nc_metric.append(batch.id, predict=nc, target=target_nc, lengths=lens)
+        self.ec_metric.append(batch.id, predict=ec, target=target_ec, lengths=lens)
+        self.cc_metric.append(batch.id, predict=cc, target=torch.ones(cc.shape), lengths=lens)
 
         return nc + cc + ec
 
