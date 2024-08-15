@@ -11,7 +11,7 @@ from pesq import pesq
 
 import speechbrain as sb
 # from speechbrain.dataio.sampler import ReproducibleWeightedRandomSampler
-from speechbrain.nnet.loss.stoi_loss import stoi_loss
+# from speechbrain.nnet.loss.stoi_loss import stoi_loss
 from speechbrain.processing.features import spectral_magnitude
 from speechbrain.utils.distributed import run_on_main
 from speechbrain.utils.metric_stats import MetricStats
@@ -64,9 +64,9 @@ class MGKBrain(sb.Brain):
         # target_nc = pesq_eval(noisy_wav, clean_wav)
         # target_ec = pesq_eval(predict_wav, clean_wav)
 
-        self.nc_metric.append(batch.id, predict=nc, target=target_nc, lengths=lens)
-        self.ec_metric.append(batch.id, predict=ec, target=target_ec, lengths=lens)
-        self.cc_metric.append(batch.id, predict=cc, target=torch.ones(cc.shape), lengths=lens)
+        self.nc_metric.append(batch.id, predictions=nc, targets=target_nc, lengths=lens, reduction="batch")
+        self.ec_metric.append(batch.id, predictions=ec, targets=target_ec, lengths=lens, reduction="batch")
+        self.cc_metric.append(batch.id, predictions=cc, targets=torch.ones(cc.shape), lengths=lens, reduction="batch")
 
         return nc + cc + ec
 
@@ -107,9 +107,9 @@ class MGKBrain(sb.Brain):
         if stage != sb.Stage.TEST:
             raise NotImplementedError("This module is only for evaluation of discriminator.")
 
-        self.cc_metric = MetricStats(metric=torch.nn.functional.mse_loss)
-        self.nc_metric = MetricStats(metric=torch.nn.functional.mse_loss)
-        self.ec_metric = MetricStats(metric=torch.nn.functional.mse_loss)
+        self.cc_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
+        self.nc_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
+        self.ec_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
 
     def on_stage_end(self, stage, stage_loss, epoch=None):
         "Called at the end of each stage to summarize progress"
