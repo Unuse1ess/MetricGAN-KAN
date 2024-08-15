@@ -58,8 +58,8 @@ class MGKBrain(sb.Brain):
         target_nc = torch.zeros(nc.shape)
         target_ec = torch.zeros(ec.shape)
         for i in range(batch_size):
-            target_nc[i, 0] = pesq_eval(noisy_wav, clean_wav)
-            target_ec[i, 0] = pesq_eval(predict_wav, clean_wav)
+            target_nc[i, 0] = pesq_eval(noisy_wav[i, :], clean_wav[i, :])
+            target_ec[i, 0] = pesq_eval(predict_wav[i, :], clean_wav[i, :])
 
         # target_nc = pesq_eval(noisy_wav, clean_wav)
         # target_ec = pesq_eval(predict_wav, clean_wav)
