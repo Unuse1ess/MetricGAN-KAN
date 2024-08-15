@@ -38,7 +38,7 @@ from pysepm import composite
 def pesq_eval(pred_wav, target_wav):
     """Normalized PESQ (to 0-1)"""
     return (
-        pesq(fs=16000, ref=target_wav.numpy(), deg=pred_wav.numpy(), mode="wb")
+        pesq(fs=16000, ref=target_wav.detach().cpu().numpy(), deg=pred_wav.detach().cpu().numpy(), mode="wb")
         + 0.5
     ) / 5
 
