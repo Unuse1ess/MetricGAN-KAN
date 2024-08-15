@@ -122,7 +122,7 @@ class MGKBrain(sb.Brain):
             "clean-clean": self.cc_metric.summarize("average"),
             "enhanced-clean": self.ec_metric.summarize("average"),
             "noisy-clean": self.nc_metric.summarize("average"),
-            "total loss:": stage_loss,
+            "total loss": stage_loss,
         }
 
         self.hparams.train_logger.log_stats(
