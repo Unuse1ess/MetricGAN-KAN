@@ -49,17 +49,17 @@ class MGKBrain(sb.Brain):
         clean_spec = self.compute_feats(clean_wav)
         est_spec = self.compute_feats(predict_wav)
 
+        batch_size = noisy_wav.shape[0]
+
         nc = self.est_score(noisy_spec, clean_spec)
         cc = self.est_score(clean_spec, clean_spec)
         ec = self.est_score(est_spec, clean_spec)
 
-        pesq_metric = MetricStats(metric=pesq_eval, n_jobs=hparams["n_jobs"], batch_eval=False)
-        pesq_metric.append(batch.id, predict=noisy_wav, target=clean_wav, lengths=lens)
-        target_nc = pesq_metric.summarize("average")
-
-        pesq_metric = MetricStats(metric=pesq_eval, n_jobs=hparams["n_jobs"], batch_eval=False)
-        pesq_metric.append(batch.id, predict=predict_wav, target=clean_wav, lengths=lens)
-        target_ec = pesq_metric.summarize("average")
+        target_nc = torch.zeros(nc.shape)
+        target_ec = torch.zeros(ec.shape)
+        for i in range(batch_size):
+            target_nc[i, 0] = pesq_eval(noisy_wav, clean_wav)
+            target_ec[i, 0] = pesq_eval(predict_wav, clean_wav)
 
         # target_nc = pesq_eval(noisy_wav, clean_wav)
         # target_ec = pesq_eval(predict_wav, clean_wav)
