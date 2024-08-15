@@ -55,8 +55,9 @@ class MGKBrain(sb.Brain):
         cc = self.est_score(clean_spec, clean_spec)
         ec = self.est_score(est_spec, clean_spec)
 
-        target_nc = torch.zeros(nc.shape)
-        target_ec = torch.zeros(ec.shape)
+        target_nc = torch.zeros(nc.shape, device=self.device)
+        target_ec = torch.zeros(ec.shape, device=self.device)
+        target_cc = torch.ones(ec.shape, device=self.device)
         for i in range(batch_size):
             target_nc[i, 0] = pesq_eval(noisy_wav[i, :], clean_wav[i, :])
             target_ec[i, 0] = pesq_eval(predict_wav[i, :], clean_wav[i, :])
@@ -66,7 +67,7 @@ class MGKBrain(sb.Brain):
 
         self.nc_metric.append(batch.id, predictions=nc, targets=target_nc, reduction="batch")
         self.ec_metric.append(batch.id, predictions=ec, targets=target_ec, reduction="batch")
-        self.cc_metric.append(batch.id, predictions=cc, targets=torch.ones(cc.shape), reduction="batch")
+        self.cc_metric.append(batch.id, predictions=cc, targets=target_cc, reduction="batch")
 
         return nc + cc + ec
 
