@@ -95,7 +95,11 @@ class MGKBrain(sb.Brain):
         combined_spec = torch.cat(
             [deg_spec.unsqueeze(1), ref_spec.unsqueeze(1)], 1
         )
-        return self.modules.discriminator(combined_spec)
+        ret = self.modules.discriminator(combined_spec)
+        if not torch.is_tensor(ret):
+            ret = torch.tensor(ret).unsqueeze(0)
+        
+        return ret
 
     def fit_batch(self, batch):
         raise NotImplementedError("This module is only for evaluation of discriminator.")
