@@ -38,10 +38,14 @@ class MetricDiscriminator(nn.Module):
 
         self.BN = nn.BatchNorm2d(num_features=2, momentum=0.01)
         
-        self.convs = nn.Sequential(*[
-            KANConv2DLayer(2, base_channels, kernel_size, base_activation=nn.SiLU),
-            *[KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU) for _ in range(num_layers - 1)]
-        ])
+        # self.convs = nn.Sequential(*[
+        #     KANConv2DLayer(2, base_channels, kernel_size, base_activation=nn.SiLU),
+        #     *[KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU) for _ in range(num_layers - 1)]
+        # ])
+
+        self.conv1 = KANConv2DLayer(2, base_channels, kernel_size, base_activation=nn.SiLU)
+        self.conv2 = KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU)
+        self.conv3 = KANConv2DLayer(base_channels, base_channels, kernel_size, base_activation=nn.SiLU)
 
         self.Linear1 = KANLinear(in_features=base_channels, out_features=1)
 
@@ -49,7 +53,10 @@ class MetricDiscriminator(nn.Module):
         """Processes the input tensor x and returns an output tensor."""
         out = self.BN(x)
 
-        out = self.convs(out)
+        # out = self.convs(out)
+        out = self.conv1(out)
+        out = self.conv2(out)
+        out = self.conv3(out)
 
         out = torch.mean(out, (2, 3))
 
