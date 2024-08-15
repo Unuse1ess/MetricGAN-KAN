@@ -11,7 +11,7 @@ N_fft: !PLACEHOLDER
 
 generator: !new:speechbrain.lobes.models.MetricGAN.EnhancementGenerator
 
-discriminator: !new:models.d1.MetricDiscriminator
+discriminator: !new:models.d3.MetricDiscriminator
     kernel_size: !ref <kernel_size>
     base_channels: !ref <base_channels>
     num_layers: 2

@@ -11,7 +11,7 @@ N_fft: !PLACEHOLDER
 
 # g2 reduces the number of layers and the size of hidden state, comparing to g1
 # generator: !new:models.g2.EnhancementGenerator
-generator: !new:models.g1.EnhancementGenerator
+generator: !new:models.g3.EnhancementGenerator
     hidden_size: 40
     num_layers: 1
 
