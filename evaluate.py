@@ -73,9 +73,9 @@ class MGKBrain(sb.Brain):
         loss2 = sb.nnet.losses.mse_loss(predictions=ec, targets=target_ec, reduction="batch")
         loss3 = sb.nnet.losses.mse_loss(predictions=cc, targets=target_cc, reduction="batch")
 
-        self.nc_loss += loss1
-        self.ec_loss += loss2
-        self.cc_loss += loss3
+        self.nc_loss += float(loss1.detach().cpu())
+        self.ec_loss += float(loss2.detach().cpu())
+        self.cc_loss += float(loss3.detach().cpu())
 
         return loss1 + loss2 + loss3
 
