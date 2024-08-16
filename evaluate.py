@@ -65,11 +65,19 @@ class MGKBrain(sb.Brain):
         # target_nc = pesq_eval(noisy_wav, clean_wav)
         # target_ec = pesq_eval(predict_wav, clean_wav)
 
-        self.nc_metric.append(batch.id, predictions=nc, targets=target_nc, reduction="batch")
-        self.ec_metric.append(batch.id, predictions=ec, targets=target_ec, reduction="batch")
-        self.cc_metric.append(batch.id, predictions=cc, targets=target_cc, reduction="batch")
+        # self.nc_metric.append(batch.id, predictions=nc, targets=target_nc, reduction="batch")
+        # self.ec_metric.append(batch.id, predictions=ec, targets=target_ec, reduction="batch")
+        # self.cc_metric.append(batch.id, predictions=cc, targets=target_cc, reduction="batch")
+        
+        loss1 = sb.nnet.losses.mse_loss(predictions=nc, targets=target_nc, reduction="batch")
+        loss2 = sb.nnet.losses.mse_loss(predictions=ec, targets=target_ec, reduction="batch")
+        loss3 = sb.nnet.losses.mse_loss(predictions=cc, targets=target_cc, reduction="batch")
 
-        return nc + cc + ec
+        self.nc_loss += loss1
+        self.ec_loss += loss2
+        self.cc_loss += loss3
+
+        return loss1 + loss2 + loss3
 
     def compute_feats(self, wavs):
         """Feature computation pipeline"""
@@ -109,9 +117,13 @@ class MGKBrain(sb.Brain):
         if stage != sb.Stage.TEST:
             raise NotImplementedError("This module is only for evaluation of discriminator.")
 
-        self.cc_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
-        self.nc_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
-        self.ec_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
+        # self.cc_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
+        # self.nc_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
+        # self.ec_metric = MetricStats(metric=sb.nnet.losses.mse_loss)
+
+        self.cc_loss = 0
+        self.nc_loss = 0
+        self.ec_loss = 0
 
     def on_stage_end(self, stage, stage_loss, epoch=None):
         "Called at the end of each stage to summarize progress"
@@ -119,9 +131,9 @@ class MGKBrain(sb.Brain):
             raise NotImplementedError("This module is only for evaluation of discriminator.")
 
         stats = {
-            "clean-clean": self.cc_metric.summarize("average"),
-            "enhanced-clean": self.ec_metric.summarize("average"),
-            "noisy-clean": self.nc_metric.summarize("average"),
+            "clean-clean": self.cc_loss,
+            "enhanced-clean": self.ec_loss,
+            "noisy-clean": self.nc_loss,
             "total loss": stage_loss,
         }
 
