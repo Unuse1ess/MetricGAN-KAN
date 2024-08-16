@@ -134,7 +134,7 @@ class MGKBrain(sb.Brain):
             "clean-clean": self.cc_loss,
             "enhanced-clean": self.ec_loss,
             "noisy-clean": self.nc_loss,
-            "total loss": stage_loss,
+            "total loss": self.cc_loss + self.ec_loss + self.nc_loss,
         }
 
         self.hparams.train_logger.log_stats(
