@@ -51,8 +51,8 @@ class MetricDiscriminator(nn.Module):
             base_channels, layer_type=nn.Conv2d, kernel_size=kernel_size
         )
 
-        self.Linear1 = KANLinear(in_features=base_channels, out_features=10)
-        self.Linear2 = KANLinear(in_features=10, out_features=1)
+        self.Linear1 = xavier_init_layer(base_channels, 50, spec_norm=False)
+        self.Linear2 = KANLinear(in_features=50, out_features=1)
 
     def forward(self, x):
         """Processes the input tensor x and returns an output tensor."""
